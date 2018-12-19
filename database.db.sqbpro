@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/milosz/projects/java-sqltraining/database.db" foreign_keys="1"/><window><current_tab id="2"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1012"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="books"/><default_encoding codec=""/><browsetable_info data="AAAAAgAAAAoAYgBvAG8AawBzAAAAAAAAAAAAAAABAAAAAgAAAL0AAAAAAAAAAAD//////////wAAAAD/////AAAAFgBiAG8AbwBrAF8AZwBlAG4AcgBlAHMAAAAAAAAAAAAAAAAAAAAAAAAAAAD//////////wAAAAD/////"/></tab_browse><tab_sql><sql name="SQL 1">drop table books;
+
+CREATE TABLE IF NOT EXISTS books(
+book_ISBN integer NOT NULL,
+book_name text NOT NULL,
+genre_id integer NOT null,
+FOREIGN KEY (genre_id) references book_genres(genre_id)
+ON UPDATE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS book_genres (
+genre_id integer PRIMARY KEY,
+genre_name text NOT NULL );</sql><sql name="SQL 2">insert into book_genres (genre_name)
+values 
+('Fantasy'),
+('SciFi'),
+('Horror');</sql><sql name="SQL 3">insert into books (book_ISBN, book_name, genre_id) 
+values 
+(1234567890125, &quot;Lord Of The Rings&quot;, 1);</sql><current_tab id="0"/></tab_sql></sqlb_project>
