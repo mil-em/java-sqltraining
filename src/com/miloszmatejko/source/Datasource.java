@@ -38,16 +38,17 @@ public class Datasource {
 
     public static final String QUERY_GENRE = "SELECT " + COLUMN_GENRE_ID + " FROM " + TABLE_GENRES +
             " WHERE " + COLUMN_GENRE_NAME + " = ?";
-    private Connection connection;
+
+    public static final String INSERT_GENRES = "INSERT INTO " + TABLE_GENRES +
+            '(' + COLUMN_GENRE_NAME + ") VALUES (?)";
 
 
+    public List<Genre> queryGenres() {
 
-
-      public List<Genre> queryGenres() {
-
+        Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
-        Connection connection = null;
+
 
         try {
             connection = DriverManager.getConnection ( CONNECTION_STRING );
@@ -75,7 +76,7 @@ public class Datasource {
                 if (connection != null)
                     connection.close ();
             } catch (SQLException e) {
-                System.out.println ("Unable to close something" + e.getMessage ());
+                System.out.println ( "Unable to close something" + e.getMessage () );
             }
         }
     }
@@ -84,9 +85,9 @@ public class Datasource {
     public List<BookOfGenre> queryBooksOfGenre(String genreName) {
 
 
-        PreparedStatement queryBookOfGenreView=null;
-        ResultSet resultSet = null;
         Connection connection = null;
+        PreparedStatement queryBookOfGenreView = null;
+        ResultSet resultSet = null;
 
         try {
             connection = DriverManager.getConnection ( CONNECTION_STRING );
@@ -105,27 +106,71 @@ public class Datasource {
         } catch (SQLException e) {
             System.out.println ( "Exception while querying booksOfGenre" + e.getMessage () );
             return null;
-        } finally{
+        } finally {
             try {
-                if(queryBookOfGenreView !=null)
+                if (queryBookOfGenreView != null)
                     queryBookOfGenreView.close ();
                 if (resultSet != null)
                     resultSet.close ();
                 if (connection != null)
                     connection.close ();
             } catch (SQLException e) {
-                System.out.println ("Unable to close something" + e.getMessage ());
+                System.out.println ( "Unable to close something" + e.getMessage () );
             }
 
-    }
+        }
 
     }
 
 
+    public int insertIntoGenres(String name) throws SQLException {
 
+        Connection connection = null;
+        PreparedStatement queryGenre = null;
+        PreparedStatement insertIntoGenres = null;
+        ResultSet resultSet = null;
+        ResultSet generatedKeys = null;
 
-    private int insertGenre(String name) {
-        return 0;
+        try {
+            connection = DriverManager.getConnection ( CONNECTION_STRING );
+            queryGenre = connection.prepareStatement ( QUERY_GENRE );
+            queryGenre.setString ( 1, name );
+            resultSet = queryGenre.executeQuery ();
+            if (resultSet.next ()) {
+                return resultSet.getInt ( 1 );
+            } else {
+                insertIntoGenres = connection.prepareStatement ( INSERT_GENRES, Statement.RETURN_GENERATED_KEYS );
+                insertIntoGenres.setString ( 1, name );
+                int affectedRows = insertIntoGenres.executeUpdate ();
+                if (affectedRows != 1) {
+                    throw new SQLException ( "Couldn't insert Genre!" );
+                }
+                generatedKeys = insertIntoGenres.getGeneratedKeys ();
+                if (generatedKeys.next ()) {
+                    return generatedKeys.getInt ( 1 );
+                } else {
+                    throw new SQLException ( "Couldn't get id for Genre" );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println ( "Exception in insert iIntoGenres method " + e.getMessage () );
+            return -1;
+        } finally {
+            try {
+                if (generatedKeys != null)
+                    generatedKeys.close ();
+                if (resultSet != null)
+                    resultSet.close ();
+                if (insertIntoGenres != null)
+                    insertIntoGenres.close ();
+                if (queryGenre != null)
+                    queryGenre.close ();
+                if (connection != null)
+                    connection.close ();
+            } catch (SQLException e) {
+                System.out.println ( "Unable to close something " + e.getMessage () );
+            }
+        }
     }
 
     private void insertBook(String name, String genre) {

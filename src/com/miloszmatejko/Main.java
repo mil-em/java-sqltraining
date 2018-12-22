@@ -4,11 +4,12 @@ import com.miloszmatejko.common.BookOfGenre;
 import com.miloszmatejko.common.Genre;
 import com.miloszmatejko.source.Datasource;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         Datasource datasource = new Datasource ();
 
         System.out.println ("----querying all genres-----");
@@ -31,6 +32,10 @@ public class Main {
             System.out.println (bookOfGenre.toString ());
         }
 
+
+        System.out.println ( "-----------------inserting a new Genre-------------------" );
+
+        System.out.println ( (datasource.insertIntoGenres ( "Romance" )) );
     }
 
 }
