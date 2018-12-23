@@ -42,6 +42,9 @@ public class Datasource {
     public static final String INSERT_GENRES = "INSERT INTO " + TABLE_GENRES +
             '(' + COLUMN_GENRE_NAME + ") VALUES (?)";
 
+    public static final String INSERT_BOOKS = "INSERT INTO " + TABLE_BOOKS +
+            '(' + COLUMN_BOOK_ISBN + ", " + COLUMN_BOOK_TITLE + ", " + COLUMN_BOOK_GENRE + ") VALUES(?, ?, ?)";
+
 
     public List<Genre> queryGenres() {
 
@@ -173,12 +176,49 @@ public class Datasource {
         }
     }
 
-    private void insertBook(String name, String genre) {
+    public void inserIntoBooks(String isbn, String name, String genre) {
+        Connection connection = null;
+        PreparedStatement insertIntoBooks = null;
+        try {
+            connection = DriverManager.getConnection ( CONNECTION_STRING );
+            connection.setAutoCommit ( false );
+            int genreId = insertIntoGenres ( genre );
+            insertIntoBooks = connection.prepareStatement ( INSERT_BOOKS );
+            insertIntoBooks.setString ( 1, isbn );
+            insertIntoBooks.setString ( 2, name );
+            insertIntoBooks.setInt ( 3, genreId );
+            int affectedRows = insertIntoBooks.executeUpdate ();
+            if (affectedRows == 1) {
+                connection.commit ();
+            } else {
+                throw new SQLException ( "The book insert failed" );
+            }
+        } catch (SQLException e) {
+            System.out.println ( "Exception in insertBook method " + e.getMessage () );
+            try {
+                System.out.println ( "performing rollback" );
+                if (connection != null)
+                    connection.rollback ();
+            } catch (SQLException e2) {
+                System.out.println ( "Exception while performing rollback" + e.getMessage () );
+            }
+        } finally {
+            try {
+                System.out.println ( "Resetting default commit behavior." );
+                connection.setAutoCommit ( true );
+                if (insertIntoBooks != null)
+                    insertIntoBooks.close ();
+                if (connection != null)
+                    connection.close ();
+            } catch (SQLException e) {
+                System.out.println ( "couldn't reset auto commit" );
+            }
+        }
 
     }
 
     private void updateData(String bookName, String newIsbn, String newBookName, String genre) {
 
-        //genre id is gonna be returned from insertGenre
+        //genre id is gonna be returned from insertGenre?
     }
 }

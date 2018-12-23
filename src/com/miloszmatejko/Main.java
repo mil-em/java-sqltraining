@@ -35,7 +35,10 @@ public class Main {
 
         System.out.println ( "-----------------inserting a new Genre-------------------" );
 
-        System.out.println ( (datasource.insertIntoGenres ( "Romance" )) );
+//        System.out.println ( (datasource.insertIntoGenres ( "Romance" )) );
+
+    datasource.inserIntoBooks ( "123456789123", "Peppa Pig", "Scholastic"  );
     }
+
 
 }
