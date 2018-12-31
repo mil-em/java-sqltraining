@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataSource {
+public class DataSource implements SimpleBookDatabase {
 
 
     private static final String DB_NAME = "database.db";
@@ -50,17 +50,66 @@ public class DataSource {
             " = ? WHERE " + COLUMN_BOOK_TITLE + " = ?";
     private static final String DELETE_BOOKS = "DELETE FROM " + TABLE_BOOKS + " WHERE "+ COLUMN_BOOK_TITLE +" = ?";
 
-    public List<Genre> queryGenres() {
+    private Connection connection;
 
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
+    private PreparedStatement queryBookOfGenreView;
+    private PreparedStatement queryGenre;
+    private PreparedStatement insertIntoGenres;
+    private PreparedStatement insertIntoBooks;
+    private PreparedStatement updateBook;
+    private PreparedStatement deleteFromBooks;
 
 
+
+
+    public boolean open() {
         try {
             connection = DriverManager.getConnection ( CONNECTION_STRING );
-            statement = connection.createStatement ();
-            resultSet = statement.executeQuery ( QUERY_GENRES );
+            queryBookOfGenreView = connection.prepareStatement ( BOOK_OF_GENRE_VIEW_PREP );
+            queryGenre = connection.prepareStatement ( QUERY_GENRE );
+            insertIntoGenres = connection.prepareStatement ( INSERT_GENRES, Statement.RETURN_GENERATED_KEYS );
+            insertIntoBooks = connection.prepareStatement ( INSERT_BOOKS );
+            updateBook = connection.prepareStatement ( UPDATE_BOOKS );
+            deleteFromBooks = connection.prepareStatement ( DELETE_BOOKS );
+            return true;
+        } catch (SQLException e) {
+            System.out.println ( "couldn't connect to the database " + e.getMessage () );
+            return false;
+        }
+    }
+
+
+    public void close() {
+        try {
+            if (queryBookOfGenreView != null) {
+                queryBookOfGenreView.close ();
+            }
+            if (queryGenre != null) {
+                queryGenre.close ();
+            }
+            if (insertIntoGenres != null) {
+                insertIntoGenres.close ();
+            }
+            if (insertIntoBooks != null) {
+                insertIntoBooks.close ();
+            }
+            if (updateBook != null) {
+                updateBook.close ();
+            }
+            if (deleteFromBooks != null) {
+                deleteFromBooks.close ();
+            }
+        } catch (SQLException e) {
+            System.out.println ("unable to close something " + e.getMessage ());
+        }
+    }
+
+    public List<Genre> queryGenres() {
+
+
+        try (Statement statement = connection.createStatement ();
+             ResultSet resultSet = statement.executeQuery ( QUERY_GENRES )) {
+
             List<Genre> genres = new ArrayList<> ();
             while (resultSet.next ()) {
                 Genre genre = new Genre ();
@@ -72,33 +121,13 @@ public class DataSource {
         } catch (SQLException e) {
             System.out.println ( "Exception while querying genres " + e.getMessage () );
             return null;
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close ();
-                }
-                if (resultSet != null) {
-                    resultSet.close ();
-                }
-                if (connection != null)
-                    connection.close ();
-            } catch (SQLException e) {
-                System.out.println ( "Unable to close something" + e.getMessage () );
-            }
         }
     }
 
 
     public List<BookOfGenre> queryBooksOfGenre(String genreName) {
-
-
-        Connection connection = null;
-        PreparedStatement queryBookOfGenreView = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = DriverManager.getConnection ( CONNECTION_STRING );
-            queryBookOfGenreView = connection.prepareStatement ( BOOK_OF_GENRE_VIEW_PREP );
+        ResultSet resultSet=null;
+        try{
             queryBookOfGenreView.setString ( 1, genreName );
             resultSet = queryBookOfGenreView.executeQuery ();
             List<BookOfGenre> booksOfGenre = new ArrayList<> ();
@@ -115,12 +144,8 @@ public class DataSource {
             return null;
         } finally {
             try {
-                if (queryBookOfGenreView != null)
-                    queryBookOfGenreView.close ();
-                if (resultSet != null)
+                 if (resultSet != null)
                     resultSet.close ();
-                if (connection != null)
-                    connection.close ();
             } catch (SQLException e) {
                 System.out.println ( "Unable to close something" + e.getMessage () );
             }
@@ -130,24 +155,19 @@ public class DataSource {
     }
 
 
-    public int insertIntoGenres(String name) throws SQLException {
+    public int insertIntoGenres(String genreName) throws SQLException {
 
-        Connection connection = null;
-        PreparedStatement queryGenre = null;
-        PreparedStatement insertIntoGenres = null;
+
         ResultSet resultSet = null;
         ResultSet generatedKeys = null;
 
         try {
-            connection = DriverManager.getConnection ( CONNECTION_STRING );
-            queryGenre = connection.prepareStatement ( QUERY_GENRE );
-            queryGenre.setString ( 1, name );
+            queryGenre.setString ( 1, genreName );
             resultSet = queryGenre.executeQuery ();
             if (resultSet.next ()) {
                 return resultSet.getInt ( 1 );
             } else {
-                insertIntoGenres = connection.prepareStatement ( INSERT_GENRES, Statement.RETURN_GENERATED_KEYS );
-                insertIntoGenres.setString ( 1, name );
+                insertIntoGenres.setString ( 1, genreName );
                 int affectedRows = insertIntoGenres.executeUpdate ();
                 if (affectedRows != 1) {
                     throw new SQLException ( "Couldn't insert Genre!" );
@@ -168,28 +188,19 @@ public class DataSource {
                     generatedKeys.close ();
                 if (resultSet != null)
                     resultSet.close ();
-                if (insertIntoGenres != null)
-                    insertIntoGenres.close ();
-                if (queryGenre != null)
-                    queryGenre.close ();
-                if (connection != null)
-                    connection.close ();
-            } catch (SQLException e) {
+                } catch (SQLException e) {
                 System.out.println ( "Unable to close something " + e.getMessage () );
             }
         }
     }
 
-    public void insertIntoBooks(String isbn, String name, String genre){
-        Connection connection = null;
-        PreparedStatement insertIntoBooks = null;
+    public void insertIntoBooks(String isbn, String name, String genre) throws SQLException{
+
         try {
-            connection = DriverManager.getConnection ( CONNECTION_STRING );
             connection.setAutoCommit ( false );
-            int genreId = insertIntoGenres ( genre );
-            insertIntoBooks = connection.prepareStatement ( INSERT_BOOKS );
             insertIntoBooks.setString ( 1, isbn );
             insertIntoBooks.setString ( 2, name );
+            int genreId = insertIntoGenres ( genre );
             insertIntoBooks.setInt ( 3, genreId );
             int affectedRows = insertIntoBooks.executeUpdate ();
             if (affectedRows == 1) {
@@ -198,7 +209,7 @@ public class DataSource {
                 throw new SQLException ( "The book insert failed" );
             }
         } catch (SQLException e) {
-            System.out.println ( "Exception in insertBook method " + e.getMessage () );
+            System.out.println ( "Exception in insertIntoBooks method " + e.getMessage () );
             try {
                 System.out.println ( "performing rollback" );
                 if (connection != null)
@@ -210,10 +221,6 @@ public class DataSource {
             try {
                 System.out.println ( "Resetting default commit behavior." );
                 connection.setAutoCommit ( true );
-                if (insertIntoBooks != null)
-                    insertIntoBooks.close ();
-                if (connection != null)
-                    connection.close ();
             } catch (SQLException e) {
                 System.out.println ( "couldn't reset auto commit" );
             }
@@ -221,15 +228,14 @@ public class DataSource {
 
     }
 
-    public void updateBook(String bookOldName, String newIsbn, String newBookTitle, String newGenre) {
+    public void updateBook(String bookOldName, String newIsbn, String newBookTitle, String newGenre) throws SQLException {
 
-        Connection connection = null;
-        PreparedStatement updateBook = null;
+
 
         try {
-            connection = DriverManager.getConnection ( CONNECTION_STRING );
+
             connection.setAutoCommit ( false );
-            updateBook = connection.prepareStatement ( UPDATE_BOOKS );
+
             System.out.println ("updateBook = " + updateBook.toString ());
             updateBook.setString ( 1, newIsbn );
             updateBook.setString ( 2, newBookTitle );
@@ -255,12 +261,6 @@ public class DataSource {
             try {
                 System.out.println ("setting autocommit default true ");
                     connection.setAutoCommit ( true );
-                if (updateBook != null) {
-                    updateBook.close ();
-                }
-                if (connection!=null) {
-                    connection.close ();
-                }
             } catch (SQLException e) {
                 System.out.println ( "setting autocommit true failed" + e.getMessage () );
             }
@@ -268,12 +268,8 @@ public class DataSource {
     }
 
     public void deleteFromBooks(String bookTitle) throws SQLException {
-        Connection connection = null;
-        PreparedStatement deleteFromBooks = null;
 
         try {
-            connection = DriverManager.getConnection ( CONNECTION_STRING );
-            deleteFromBooks = connection.prepareStatement ( DELETE_BOOKS );
             deleteFromBooks.setString ( 1, bookTitle );
             int affectedRows = deleteFromBooks.executeUpdate ();
             if (affectedRows <1) {
@@ -281,19 +277,7 @@ public class DataSource {
             }
         } catch (SQLException e) {
             System.out.println ( "Exception in deleteFromBooks " + e.getMessage () );
-        }finally {
-            try {
-                if (deleteFromBooks != null) {
-                    deleteFromBooks.close ();
-                }
-                if (connection != null) {
-                    connection.close ();
-                }
-            } catch (SQLException e) {
-                System.out.println ("unable to close something after deleteFromBooks" + e.getMessage ());
-            }
-        }
 
     }
-
+}
 }

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="04d5b0a1-9968-47e7-94f5-0639585e252a" name="Default Changelist" comment="Renamed some elements for clarity.&#10;Created methods to query all Genres and query all books from one genre." />
+=======
+    <list default="true" id="04d5b0a1-9968-47e7-94f5-0639585e252a" name="Default Changelist" comment="Renamed some elements for clarity.&#10;Created methods to query all Genres and query all books from one genre.">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/sqlite_jdbc_3_23_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+    </list>
+>>>>>>> open-close-datasource
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,8 +21,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/miloszmatejko/Main.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="510">
               <caret line="35" selection-start-line="35" selection-end-line="35" />
+=======
+            <state relative-caret-position="646">
+              <caret line="43" selection-start-line="43" selection-end-line="43" />
+>>>>>>> open-close-datasource
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -26,8 +38,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/miloszmatejko/source/DataSource.java">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="467">
               <caret line="63" column="13" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
+=======
+            <state relative-caret-position="841">
+              <caret line="85" column="13" selection-start-line="85" selection-start-column="13" selection-end-line="85" selection-end-column="13" />
+>>>>>>> open-close-datasource
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -324,8 +341,13 @@
     <entry file="file://$PROJECT_DIR$/src/com/miloszmatejko/source/SimpleBookDatabase.java" />
     <entry file="file://$PROJECT_DIR$/src/com/miloszmatejko/Main.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="510">
           <caret line="35" selection-start-line="35" selection-end-line="35" />
+=======
+        <state relative-caret-position="646">
+          <caret line="43" selection-start-line="43" selection-end-line="43" />
+>>>>>>> open-close-datasource
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -355,8 +377,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/miloszmatejko/source/DataSource.java">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="467">
           <caret line="63" column="13" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
+=======
+        <state relative-caret-position="841">
+          <caret line="85" column="13" selection-start-line="85" selection-start-column="13" selection-end-line="85" selection-end-column="13" />
+>>>>>>> open-close-datasource
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
