@@ -1,8 +1,8 @@
 package com.miloszmatejko.source;
 
-import com.miloszmatejko.common.BookOfGenre;
-import com.miloszmatejko.common.DataSourceException;
-import com.miloszmatejko.common.Genre;
+import com.miloszmatejko.source.common.BookOfGenre;
+import com.miloszmatejko.source.common.DataSourceException;
+import com.miloszmatejko.source.common.Genre;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;

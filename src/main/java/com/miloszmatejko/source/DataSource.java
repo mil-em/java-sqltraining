@@ -1,9 +1,9 @@
 package com.miloszmatejko.source;
 
-import com.miloszmatejko.common.BookOfGenre;
-import com.miloszmatejko.common.DataSourceException;
-import com.miloszmatejko.common.Genre;
-import com.miloszmatejko.common.SimpleBookDatabase;
+import com.miloszmatejko.source.common.BookOfGenre;
+import com.miloszmatejko.source.common.DataSourceException;
+import com.miloszmatejko.source.common.Genre;
+import com.miloszmatejko.source.common.SimpleBookDatabase;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -182,8 +182,7 @@ public class DataSource implements SimpleBookDatabase {
                 }
             }
         } catch (SQLException e) {
-            System.out.println ( "Exception in insert iIntoGenres method " + e.getMessage () );
-            return -1;
+            throw new DataSourceException ( "Exception in insert iIntoGenres method " + e.getMessage () );
         } finally {
             try {
                 if (generatedKeys != null)
@@ -217,14 +216,14 @@ public class DataSource implements SimpleBookDatabase {
                     connection.rollback ();
                 throw new DataSourceException ( "The book insert failed" + e.getMessage () );
             } catch (SQLException e2) {
-                System.out.println ( "Exception while performing rollback" + e.getMessage () );
+                throw new DataSourceException ( "Exception while performing rollback" + e.getMessage () );
             }
         } finally {
             try {
                 System.out.println ( "Resetting default commit behavior." );
                 connection.setAutoCommit ( true );
             } catch (SQLException e) {
-                System.out.println ( "couldn't reset auto commit" );
+                throw new DataSourceException ( "couldn't reset auto commit" );
             }
         }
 
@@ -251,14 +250,14 @@ public class DataSource implements SimpleBookDatabase {
                 System.out.println ( "Exception in updateBook " + e.getMessage () );
                 connection.rollback ();
             } catch (SQLException e1) {
-                System.out.println ("couldn't perform a rollback" + e.getMessage ());
+                throw new DataSourceException ("couldn't perform a rollback" + e.getMessage ());
             }
         }finally {
             try {
                 System.out.println ("setting autocommit default true ");
                     connection.setAutoCommit ( true );
             } catch (SQLException e) {
-                System.out.println ( "setting autocommit true failed" + e.getMessage () );
+                throw new DataSourceException ( "setting autocommit true failed" + e.getMessage () );
             }
         }
     }
@@ -272,7 +271,7 @@ public class DataSource implements SimpleBookDatabase {
                 throw new DataSourceException ( "Deleted Nothing!" );
             }
         } catch (SQLException e) {
-            System.out.println ( "Exception in deleteFromBooks " + e.getMessage () );
+           throw new DataSourceException ( "Exception in deleteFromBooks " + e.getMessage () );
 
     }
 }

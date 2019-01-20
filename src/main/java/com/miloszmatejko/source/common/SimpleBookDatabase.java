@@ -1,4 +1,4 @@
-package com.miloszmatejko.common;
+package com.miloszmatejko.source.common;
 
 import java.util.List;
 

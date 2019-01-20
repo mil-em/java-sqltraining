@@ -1,4 +1,4 @@
-package com.miloszmatejko.common;
+package com.miloszmatejko.source.common;
 
 public class Book {
     private String book_ISBN;
