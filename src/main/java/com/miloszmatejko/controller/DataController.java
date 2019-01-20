@@ -19,11 +19,13 @@ public class DataController {
 
     public List<Genre> getAllGenres() throws ControllerException {
         List<Genre> genres;
-        if (!dataSource.open ()) {
+        try {
+            dataSource.open ();
+            genres = dataSource.queryGenres ();
+            dataSource.close ();
+        } catch (DataSourceException e) {
             throw new ControllerException ( "Couldn't open database" );
         }
-        genres = dataSource.queryGenres ();
-        dataSource.close ();
         return genres;
     }
 
@@ -37,11 +39,13 @@ public class DataController {
 
     public List<BookOfGenre> getAllBooksOfGenre(String genre) throws ControllerException {
         List<BookOfGenre> books ;
-        if (!dataSource.open ()) {
+        try {
+            dataSource.open ();
+            books = dataSource.queryBooksOfGenre ( genre );
+            dataSource.close ();
+        } catch (DataSourceException e) {
             throw new ControllerException ( "Couldn't open database" );
         }
-        books = dataSource.queryBooksOfGenre ( genre );
-        dataSource.close ();
         return books;
     }
 
@@ -52,31 +56,33 @@ public class DataController {
 
     public void insertNewGenre(String name) throws ControllerException {
 
-        if (!dataSource.open ()) {
-            throw new ControllerException ( "Couldn't open database" );
-        }
         try {
+            dataSource.open ();
             if (dataSource.insertIntoGenres ( "Romance" ) != 0) {
                 throw new ControllerException ( "Genre already exists" );
             }
+            dataSource.close ();
         } catch (DataSourceException e) {
-            System.out.println ( e.getMessage () );
-            throw new ControllerException ( "couldn't insert a new Genre" );
+            throw new ControllerException ( "Couldn't open database" );
         }
     }
 
     public void insertNewBook(String isbn, String title, String genre) throws ControllerException {
-        try {
-            dataSource.insertIntoBooks ( isbn, title, genre );
 
+        try {
+            dataSource.open ();
+            dataSource.insertIntoBooks ( isbn, title, genre );
+            dataSource.close ();
         } catch (DataSourceException e) {
-            throw new ControllerException ( "couldn't insert new Book " + e.getMessage () );
+            throw new ControllerException ( "Couldn't open database" );
         }
     }
 
     public void updateBook(String oldTitle, String newIsbnm, String newTitle, String newGenre) throws ControllerException {
         try {
+            dataSource.open ();
             dataSource.updateBook ( "Sherlock Holmes", "2919191919191", "It", "Horror" );
+            dataSource.close ();
         } catch (DataSourceException e) {
             throw new ControllerException ( "couldn't update book " + e.getMessage () );
         }
@@ -84,7 +90,9 @@ public class DataController {
 
     public void deleteBook (String title) throws ControllerException {
         try {
+            dataSource.open ();
             dataSource.deleteFromBooks ( title );
+            dataSource.close ();
         } catch (DataSourceException e) {
             throw new ControllerException ( e.getMessage () );
         }

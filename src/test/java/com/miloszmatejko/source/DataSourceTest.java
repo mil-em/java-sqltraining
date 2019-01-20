@@ -15,7 +15,7 @@ class DataSourceTest {
     private static DataSource dataSource;
 
     @BeforeAll
-    static void setUp() {
+    static void setUp() throws DataSourceException {
         dataSource = new DataSource ();
         dataSource.open ();
     }
@@ -23,7 +23,7 @@ class DataSourceTest {
 
 
     @Test
-    void queryGenres() {
+    void queryGenres() throws DataSourceException {
         List<Genre> queriedGenres = dataSource.queryGenres ();
         List<Genre> genres = new ArrayList<> ();
         genres.add ( new Genre ( 1, "Fantasy" ) );
@@ -65,7 +65,7 @@ class DataSourceTest {
     }
 
     @Test
-    void queryBooksOfGenre() {
+    void queryBooksOfGenre() throws DataSourceException {
         String genre = "Fantasy";
         List <BookOfGenre> result = dataSource.queryBooksOfGenre ( genre );
         List<BookOfGenre> expected = new ArrayList<> ();
@@ -77,7 +77,7 @@ class DataSourceTest {
     }
 
     @AfterAll
-    static void tearDown() {
+    static void tearDown() throws DataSourceException {
         dataSource.close ();
     }
 }
