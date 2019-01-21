@@ -58,9 +58,7 @@ public class DataController {
 
         try {
             dataSource.open ();
-            if (dataSource.insertIntoGenres ( "Romance" ) != 0) {
-                throw new ControllerException ( "Genre already exists" );
-            }
+            dataSource.insertIntoGenres ( name ) ;
             dataSource.close ();
         } catch (DataSourceException e) {
             throw new ControllerException ( "Couldn't open database" );
