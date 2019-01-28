@@ -1,10 +1,11 @@
 package com.miloszmatejko.source;
 
-import com.miloszmatejko.source.common.BookOfGenre;
-import com.miloszmatejko.source.common.DataSourceException;
-import com.miloszmatejko.source.common.Genre;
-import com.miloszmatejko.source.common.SimpleBookDatabase;
+import com.miloszmatejko.model.BookOfGenre;
+import com.miloszmatejko.model.DataSourceException;
+import com.miloszmatejko.model.Genre;
+import com.miloszmatejko.model.SimpleBookDatabase;
 
+import java.io.Closeable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class DataSource implements SimpleBookDatabase {
     private static final String UPDATE_BOOKS = "UPDATE " + TABLE_BOOKS + " SET " + COLUMN_BOOK_ISBN + " = ?, " +
             COLUMN_BOOK_TITLE + " = ?, " + COLUMN_BOOK_GENRE +
             " = ? WHERE " + COLUMN_BOOK_TITLE + " = ?";
-    private static final String DELETE_BOOKS = "DELETE FROM " + TABLE_BOOKS + " WHERE "+ COLUMN_BOOK_TITLE +" = ?";
+    private static final String DELETE_BOOKS = "DELETE FROM " + TABLE_BOOKS + " WHERE " + COLUMN_BOOK_TITLE + " = ?";
 
     private Connection connection;
 
@@ -61,8 +62,7 @@ public class DataSource implements SimpleBookDatabase {
     private PreparedStatement updateBook;
     private PreparedStatement deleteFromBooks;
 
-
-
+    private SourceUtils sourceUtils = new SourceUtils ();
 
     public void open() throws DataSourceException {
         try {
@@ -75,7 +75,7 @@ public class DataSource implements SimpleBookDatabase {
             deleteFromBooks = connection.prepareStatement ( DELETE_BOOKS );
 
         } catch (SQLException e) {
-            throw new DataSourceException ( "couldn't connect to the database " + e.getMessage () );
+            throw new DataSourceException ( "couldn't connect to the database ", e );
 
         }
     }
@@ -102,7 +102,7 @@ public class DataSource implements SimpleBookDatabase {
                 deleteFromBooks.close ();
             }
         } catch (SQLException e) {
-            throw new DataSourceException ("unable to close something " + e.getMessage ());
+            throw new DataSourceException ( "unable to close something ", e );
         }
     }
 
@@ -114,21 +114,22 @@ public class DataSource implements SimpleBookDatabase {
 
             List<Genre> genres = new ArrayList<> ();
             while (resultSet.next ()) {
-                Genre genre = new Genre ();
-                genre.setGenre_id ( resultSet.getInt ( 1 ) );
-                genre.setGenre_name ( resultSet.getString ( 2 ) );
+
+                int genreId = (resultSet.getInt ( 1 ));
+                String genreName = (resultSet.getString ( 2 ));
+                Genre genre = new Genre ( genreId, genreName );
                 genres.add ( genre );
             }
             return genres;
         } catch (SQLException e) {
-            throw new DataSourceException ( "Exception while querying genres " + e.getMessage () );
+            throw new DataSourceException ( "Exception while querying genres ", e );
         }
     }
 
 
     public List<BookOfGenre> queryBooksOfGenre(String genreName) throws DataSourceException {
-        ResultSet resultSet=null;
-        try{
+        ResultSet resultSet = null;
+        try {
             queryBookOfGenreView.setString ( 1, genreName );
             resultSet = queryBookOfGenreView.executeQuery ();
             List<BookOfGenre> booksOfGenre = new ArrayList<> ();
@@ -141,16 +142,10 @@ public class DataSource implements SimpleBookDatabase {
             }
             return booksOfGenre;
         } catch (SQLException e) {
-            throw new DataSourceException ( "Exception while querying booksOfGenre" + e.getMessage () );
+            throw new DataSourceException ( "Exception while querying booksOfGenre", e );
 
         } finally {
-            try {
-                 if (resultSet != null)
-                    resultSet.close ();
-            } catch (SQLException e) {
-                System.out.println ( "Unable to close something" + e.getMessage () );
-            }
-
+            sourceUtils.closeResources ( resultSet );
         }
 
     }
@@ -171,30 +166,24 @@ public class DataSource implements SimpleBookDatabase {
                 insertIntoGenres.setString ( 1, genreName );
                 int affectedRows = insertIntoGenres.executeUpdate ();
                 if (affectedRows != 1) {
-                    throw new DataSourceException ( "Couldn't insert Genre!" );
+                    throw new DataSourceException ( "Couldn't insert Genre!", null );
                 }
                 generatedKeys = insertIntoGenres.getGeneratedKeys ();
                 if (generatedKeys.next ()) {
                     return generatedKeys.getInt ( 1 );
                 } else {
-                    throw new DataSourceException ( "Couldn't get id for Genre" );
+                    throw new DataSourceException ( "Couldn't get id for Genre", null );
                 }
             }
         } catch (SQLException e) {
-            throw new DataSourceException ( "Exception in insert iIntoGenres method " + e.getMessage () );
+            throw new DataSourceException ( "Exception in insert iIntoGenres method ", e );
         } finally {
-            try {
-                if (generatedKeys != null)
-                    generatedKeys.close ();
-                if (resultSet != null)
-                    resultSet.close ();
-                } catch (SQLException e) {
-                throw new DataSourceException ( "Unable to close something " + e.getMessage () );
-            }
+            sourceUtils.closeResources ( generatedKeys );
+            sourceUtils.closeResources ( resultSet );
         }
     }
 
-    public void insertIntoBooks(String isbn, String name, String genre) throws DataSourceException{
+    public void insertIntoBooks(String isbn, String name, String genre) throws DataSourceException {
 
         try {
             connection.setAutoCommit ( false );
@@ -206,24 +195,13 @@ public class DataSource implements SimpleBookDatabase {
             if (affectedRows == 1) {
                 connection.commit ();
             } else {
-                throw new DataSourceException ( "The book insert failed" );
+                throw new DataSourceException ( "The book insert failed", null );
             }
         } catch (SQLException e) {
-             try {
-//                System.out.println ( "performing rollback" );
-                if (connection != null)
-                    connection.rollback ();
-                throw new DataSourceException ( "The book insert failed" + e.getMessage () );
-            } catch (SQLException e2) {
-                throw new DataSourceException ( "Exception while performing rollback" + e.getMessage () );
-            }
+            throw new DataSourceException ( "The book insert failed", e );
         } finally {
-            try {
-//                System.out.println ( "Resetting default commit behavior." );
-                connection.setAutoCommit ( true );
-            } catch (SQLException e) {
-                throw new DataSourceException ( "couldn't reset auto commit" );
-            }
+            sourceUtils.autoCommitTrueAndRollback ( connection );
+
         }
 
     }
@@ -238,26 +216,16 @@ public class DataSource implements SimpleBookDatabase {
             updateBook.setInt ( 3, genreId );
             updateBook.setString ( 4, bookOldName );
 
-            int affectedRows  = updateBook.executeUpdate ();
+            int affectedRows = updateBook.executeUpdate ();
             if (affectedRows == 1) {
                 connection.commit ();
             } else {
-                throw new DataSourceException ( "update failed" );
+                throw new DataSourceException ( "update failed", null );
             }
-        } catch (SQLException e ) {
-            try {
-                System.out.println ( "Exception in updateBook " + e.getMessage () );
-                connection.rollback ();
-            } catch (SQLException e1) {
-                throw new DataSourceException ("couldn't perform a rollback" + e.getMessage ());
-            }
-        }finally {
-            try {
-//                System.out.println ("setting autocommit default true ");
-                    connection.setAutoCommit ( true );
-            } catch (SQLException e) {
-                throw new DataSourceException ( "setting autocommit true failed" + e.getMessage () );
-            }
+        } catch (SQLException e) {
+            throw new DataSourceException ( "couldn't update book", e );
+        } finally {
+          sourceUtils.autoCommitTrueAndRollback ( connection );
         }
     }
 
@@ -266,12 +234,12 @@ public class DataSource implements SimpleBookDatabase {
         try {
             deleteFromBooks.setString ( 1, bookTitle );
             int affectedRows = deleteFromBooks.executeUpdate ();
-            if (affectedRows <1) {
-                throw new DataSourceException ( "Deleted Nothing!" );
+            if (affectedRows < 1) {
+                throw new DataSourceException ( "Deleted Nothing!", null );
             }
         } catch (SQLException e) {
-           throw new DataSourceException ( "Exception in deleteFromBooks " + e.getMessage () );
+            throw new DataSourceException ( "Exception in deleteFromBooks ", e );
 
+        }
     }
-}
 }

@@ -1,7 +1,7 @@
 package com.miloszmatejko.view;
 
-import com.miloszmatejko.source.common.BookOfGenre;
-import com.miloszmatejko.source.common.Genre;
+import com.miloszmatejko.model.BookOfGenre;
+import com.miloszmatejko.model.Genre;
 
 import java.util.List;
 

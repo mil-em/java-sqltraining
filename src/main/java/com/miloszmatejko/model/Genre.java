@@ -1,4 +1,4 @@
-package com.miloszmatejko.source.common;
+package com.miloszmatejko.model;
 
 public class Genre {
 
@@ -16,17 +16,10 @@ public class Genre {
         return genre_id;
     }
 
-    public void setGenre_id(int genre_id) {
-        this.genre_id = genre_id;
-    }
-
     public String getGenre_name() {
         return genre_name;
     }
 
-    public void setGenre_name(String genre_name) {
-        this.genre_name = genre_name;
-    }
 
     @Override
     public String toString() {
