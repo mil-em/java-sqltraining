@@ -17,35 +17,29 @@ class DataSourceTest {
     @BeforeAll
     static void setUp() throws DataSourceException {
         dataSource = new DataSource ();
-        dataSource.open ();
+
     }
 
 
 
     @Test
     void queryGenres() throws DataSourceException {
-        List<Genre> queriedGenres = dataSource.queryGenres ();
+        List<Genre> queriedGenres = dataSource.queryAllGenres ();
         List<Genre> genres = new ArrayList<> ();
-        genres.add ( new Genre ( 1, "Fantasy" ) );
-        genres.add ( new Genre ( 2, "SciFi" ) );
-        genres.add ( new Genre ( 3, "Horror" ) );
-        genres.add ( new Genre ( 5, "Scholastic" ) );
-        genres.add ( new Genre ( 6, "Crime Story" ) );
-        genres.add ( new Genre ( 8, "Romance" ) );
-        genres.add ( new Genre ( 9, "Novel" ) );
+        genres.add ( Genre.createGenre ( 1, "Fantasy" ) );
+        genres.add ( Genre.createGenre ( 2, "SciFi" ) );
+        genres.add ( Genre.createGenre ( 3, "Horror" ) );
+        genres.add ( Genre.createGenre ( 5, "Scholastic" ) );
+        genres.add ( Genre.createGenre ( 6, "Crime Story" ) );
+        genres.add ( Genre.createGenre ( 8, "Romance" ) );
+        genres.add ( Genre.createGenre ( 9, "Novel" ) );
 
         assertEquals ( genres, queriedGenres );
 
     }
 
 
-    @Test
-    void insertIntoGenres() throws Exception {
 
-        int num = dataSource.insertIntoGenres ( "Romance" );
-        assertEquals ( 8, num );
-
-    }
 
         @Test @Disabled
     void deleteFromBooks() throws Exception{
@@ -69,8 +63,8 @@ class DataSourceTest {
         String genre = "Fantasy";
         List <BookOfGenre> result = dataSource.queryBooksOfGenre ( genre );
         List<BookOfGenre> expected = new ArrayList<> ();
-        expected.add ( new BookOfGenre ("Fantasy","1234567890125","Lord Of The Rings" ) );
-        expected.add ( new BookOfGenre ("Fantasy","9375847592834","Harry Potter" ) );
+        expected.add ( BookOfGenre.createBookOfGenre ("Fantasy","1234567890125","Lord Of The Rings" ) );
+        expected.add (  BookOfGenre.createBookOfGenre ("Fantasy","9375847592834","Harry Potter" ) );
         assertEquals ( expected, result );
 
 
@@ -78,6 +72,6 @@ class DataSourceTest {
 
     @AfterAll
     static void tearDown() throws DataSourceException {
-        dataSource.close ();
+
     }
 }

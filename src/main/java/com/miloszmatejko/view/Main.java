@@ -15,36 +15,46 @@ public class Main {
             controller.updateGenresView ();
         } catch (ControllerException e) {
             System.out.println (e.getMessage ());
+//            e.printStackTrace ();
+
         }
 
         try {
-            controller.updateBooksOfGenreView ( "Fantasy" );
+            controller.updateBooksOfGenreView ( "Horror" );
         } catch (ControllerException e) {
             System.out.println (e.getMessage ());
+//            e.printStackTrace ();
         }
 
         try {
             controller.insertNewGenre ( "Romance" );
         } catch (ControllerException e) {
             System.out.println ( e.getMessage () );
+//        e.printStackTrace ();
+
         }
 
         try {
-            controller.insertNewBook ( "9375847592834", "Harry Potter", "Fantasy" );
+            controller.insertNewBook ( "888888888888", "Cujo", "Horror" );
         } catch (ControllerException e) {
             System.out.println (e.getMessage ());
+//            e.printStackTrace ();
         }
 
         try {
-            controller.updateBook ( "Sherlock Holmes", "2919191919191", "It", "Horror" );
+            controller.updateBook ( "Cujo", "0000000000000", "Sherlock Holmes", "Crime Story" );
         } catch (ControllerException e) {
             System.out.println (e.getMessage ());
+//            e.printStackTrace ();
+
         }
 
         try {
-            controller.deleteBook ( "Sherlock Holmes" );
+         controller.deleteBook ( "Sherlock Holmes" );
         } catch (ControllerException e) {
             System.out.println ( e.getMessage () );
+//        e.printStackTrace ();
+
         }
 
     }

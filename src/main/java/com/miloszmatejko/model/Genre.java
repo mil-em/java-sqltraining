@@ -5,9 +5,8 @@ public class Genre {
     private int genre_id;
     private String genre_name;
 
-    public Genre() {}
 
-    public Genre(int genre_id, String genre_name) {
+    private Genre(int genre_id, String genre_name) {
         this.genre_id = genre_id;
         this.genre_name = genre_name;
     }
@@ -21,12 +20,18 @@ public class Genre {
     }
 
 
+    public static Genre createGenre(int genre_id, String genre_name) {
+        return new Genre ( genre_id, genre_name );
+
+    }
+
+
     @Override
     public String toString() {
         return
                 "genre_id = " + this.genre_id +
-                ", genre_name = '" + this.genre_name + '\''
-               ;
+                        ", genre_name = '" + this.genre_name + '\''
+                ;
     }
 
     @Override
@@ -34,7 +39,7 @@ public class Genre {
         if (this == obj) {
             return true;
         }
-        if (obj.getClass ()==null || this.getClass ()!= ( obj.getClass () )) {
+        if (obj.getClass () == null || this.getClass () != (obj.getClass ())) {
             return false;
         }
         Genre g = (Genre) obj;

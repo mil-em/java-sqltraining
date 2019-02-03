@@ -1,44 +1,53 @@
 package com.miloszmatejko.source;
 
-import java.io.Closeable;
-import java.io.IOException;
+import com.miloszmatejko.model.DataSourceException;
+
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SourceUtils {
 
-    public void closeResources(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close ();
-            } catch (IOException e) {
-                System.out.println ( "couldn't close something:" );
-                e.printStackTrace ();
-            }
-        }
-    }
-
-    public void closeResources(AutoCloseable autoCloseable) {
+    public void closeResources(AutoCloseable autoCloseable) throws DataSourceException {
         if (autoCloseable != null) {
             try {
                 autoCloseable.close ();
             } catch (Exception e) {
-                System.out.println ( "couldn't close something:" );
-                e.printStackTrace ();
+                throw new DataSourceException ( "couldn't close something ", e );
             }
         }
     }
 
-    public void autoCommitTrueAndRollback(Connection connection) {
+    public void connectionAcTrueRollClose(Connection connection) throws DataSourceException {
         if (connection != null) {
             try {
                 connection.rollback ();
                 connection.setAutoCommit ( true );
-
+                connection.close ();
             } catch (SQLException e) {
-                System.out.println ( "couldn't rollback or reset autocommit" );
-                e.printStackTrace ();
+                throw new DataSourceException ( "couldn't close something ", e );
             }
         }
+    }
+
+public    int generateGenreId(Connection connection, String genreName, String sqlQueryGenre, String sqlInsertGenres) throws SQLException {
+
+        PreparedStatement queryGenre = connection.prepareStatement (sqlQueryGenre );
+        queryGenre.setString ( 1, genreName );
+        ResultSet resultSet = queryGenre.executeQuery ();
+        if (resultSet.next ()) {
+            return resultSet.getInt ( 1 );
+        } else {
+            PreparedStatement insertIntoGenres = connection.prepareStatement ( sqlInsertGenres );
+            insertIntoGenres.setString ( 1, genreName );
+            ResultSet generatedKeys = insertIntoGenres.getGeneratedKeys ();
+            if (generatedKeys.next ()) {
+                return generatedKeys.getInt ( 1 );
+            } else {
+                throw new SQLException ( "Couldn't generate genreId" );
+            }
+        }
+
     }
 }

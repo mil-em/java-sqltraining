@@ -1,40 +1,22 @@
 package com.miloszmatejko.model;
 
+import java.time.chrono.IsoChronology;
+
 public class BookOfGenre {
     private String genre;
     private String ISBN;
     private String title;
 
-    public BookOfGenre(){}
 
-    public BookOfGenre(String genre, String ISBN, String title) {
+
+    private BookOfGenre(String genre, String ISBN, String title) {
         this.genre = genre;
         this.ISBN = ISBN;
         this.title = title;
     }
 
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public String getISBN() {
-        return ISBN;
-    }
-
-    public void setISBN(String ISBN) {
-        this.ISBN = ISBN;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public static BookOfGenre createBookOfGenre(String genre, String ISBN, String title) {
+        return new BookOfGenre ( genre, ISBN, title );
     }
 
     @Override
